@@ -8,7 +8,12 @@
     <% include partials/_header %>
     <% for (var key in urls) { %>
        <li> <%=key + ': ' + urls[key]%> </li>
+          <form method="POST" action="/urls/<%= key%>/delete" style="margin:15px;">
+            <div class="button">
+                <button type="submit">Delete 🗑️</button>
+            </div>
+          </form>
     <% } %>
+  
   </body>
 </html>
-
