@@ -6,8 +6,13 @@
   </head>
   <body>
     <% include partials/_header %>
-
     <li> <%=shortURL + ": " + fullURL %> </li>
+    <form action="/urls/<%= shortURL %>" method="POST" style="margin:15px;">
+      <label for="newlongURL">Update the URL:</label>
+      <input id="newlongURL" type="text" name="newlongURL" placeholder="http://" style="width:300px">
+      <div class="button">
+          <button type="submit">Submit 🆕URL</button>
+      </div>
   </body>
 </html>
 

@@ -3,10 +3,7 @@ var app = express();
 var PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
 app.set("view engine", "ejs");
-
-app.listen(PORT, () => {
-    console.log(`Example app listening on port ${PORT}!`)
-});
+app.use(bodyParser.urlencoded({extended: true}));
 
 var urlDatabase = {
     "b2xVn2": "http://www.lighthouselabs.ca",
@@ -37,14 +34,20 @@ app.get("/urls/:id", (req, res) => {
     let templateVars = { shortURL: req.params.id, fullURL: urlDatabase[req.params.id] };
     res.render("urls_show", templateVars);
 });
-
-app.use(bodyParser.urlencoded({extended: true}));
+//Update a URL in the database
+app.post("/urls/:id", (req, res) => {
+    console.log(req.body); //debug statement to see POST parameters
+    let newlongURL = req.body['newlongURL']
+    urlDatabase[req.params.id] = newlongURL;
+    console.log(urlDatabase);  
+    res.redirect("/urls");
+})
 
 function generateRandomString () {
     let randomStr = Math.random().toString(36).substr(2, 6);
     return randomStr;
 }
-
+//Add new URL to database
 app.post("/urls", (req, res) => {
     console.log(req.body); //debug statement to see POST parameters
     let longURL = req.body['longURL']
@@ -69,3 +72,9 @@ app.post("/urls/:id/delete", (req, res) => {
     delete urlDatabase[id];
     res.redirect("/urls");
 })
+
+
+//keep at the bottom
+app.listen(PORT, () => {
+    console.log(`Example app listening on port ${PORT}!`)
+});
