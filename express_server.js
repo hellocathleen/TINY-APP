@@ -1,9 +1,11 @@
 var express = require('express');
 var app = express();
 var PORT = 8080; //default port 8080
+var cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 var urlDatabase = {
     "b2xVn2": "http://www.lighthouselabs.ca",
@@ -23,15 +25,15 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-    res.render("urls_index", { urls: urlDatabase })
+    res.render("urls_index", { username: req.cookies["username"], urls: urlDatabase })
 });
 
 app.get('/urls/new', (req, res) => {
-    res.render("urls_new");
+    res.render("urls_new", { username: req.cookies["username"] });
 });
 
 app.get("/urls/:id", (req, res) => {
-    let templateVars = { shortURL: req.params.id, fullURL: urlDatabase[req.params.id] };
+    let templateVars = { shortURL: req.params.id, fullURL: urlDatabase[req.params.id], username: req.cookies["username"] };
     res.render("urls_show", templateVars);
 });
 //Update a URL in the database
@@ -39,7 +41,7 @@ app.post("/urls/:id", (req, res) => {
     console.log(req.body); //debug statement to see POST parameters
     let newlongURL = req.body['newlongURL']
     urlDatabase[req.params.id] = newlongURL;
-    console.log(urlDatabase);  
+    console.log(urlDatabase);//view updated database
     res.redirect("/urls");
 })
 
@@ -64,7 +66,7 @@ app.get("/u/:randoURL", (req, res) => {
 })
 
 app.get("/urls/:id/delete", (req, res) => {
-    res.render("urls_index", { urls: urlDatabase })
+    res.render("urls_index", { username: req.cookies["username"], urls: urlDatabase })
 })
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -73,6 +75,16 @@ app.post("/urls/:id/delete", (req, res) => {
     res.redirect("/urls");
 })
 
+// app.get("/login", (req, res) => {
+//     res.render("urls_index", { urls: urlDatabase })
+// });
+
+app.post("/login", (req, res) => {
+    console.log("Body:", req.body);
+    res.cookie('username', req.body['username']);
+    console.log("Cookies:", req.cookies);
+    res.redirect("/urls");
+})
 
 //keep at the bottom
 app.listen(PORT, () => {
