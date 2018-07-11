@@ -60,4 +60,12 @@ app.get("/u/:randoURL", (req, res) => {
     res.redirect(longURL);
 })
 
-// console.log(generateRandomString());
+app.get("/urls/:id/delete", (req, res) => {
+    res.render("urls_index", { urls: urlDatabase })
+})
+
+app.post("/urls/:id/delete", (req, res) => {
+    let id = req.params.id;
+    delete urlDatabase[id];
+    res.redirect("/urls");
+})
