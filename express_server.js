@@ -73,15 +73,16 @@ app.post("/urls/:id/delete", (req, res) => {
     let id = req.params.id;
     delete urlDatabase[id];
     res.redirect("/urls");
-})
-
-// app.get("/login", (req, res) => {
-//     res.render("urls_index", { urls: urlDatabase })
-// });
 
 app.post("/login", (req, res) => {
     console.log("Body:", req.body);
     res.cookie('username', req.body['username']);
+    console.log("Cookies:", req.cookies);
+    res.redirect("/urls");
+})
+
+app.post("/logout", (req, res) => {
+    res.clearCookie('username');
     console.log("Cookies:", req.cookies);
     res.redirect("/urls");
 })

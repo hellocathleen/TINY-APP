@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang= "en">
 <head>
-  <h3><b><%= username %></b></h3> 
+  <% if (username) { %>
+    <h3><b><%= username %></b></h3> 
+  <form method="POST" action="/logout" style="margin:15px;">
+    <div class="button">
+        <button type="submit">Log Out</button>
+    </div>
+  </form>
+  <% } %>
 </head>
-<form action="/login" method="POST" style="margin:10px;">
-  <label for="username">Enter a username:</label>
-  <input id="username" type="text" name="username" style="width:150px">
-  <input type="submit" value="Submit">
- 
-</form>
+<% if (!username) { %>
+  <form action="/login" method="POST" style="margin:10px;">
+    <label for="username">Enter a username:</label>
+    <input id="username" type="text" name="username" style="width:150px">
+    <input type="submit" value="Submit">
+  </form>
+<% } %>
 </html>
