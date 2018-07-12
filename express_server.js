@@ -68,18 +68,19 @@ app.get("/u/:randoURL", (req, res) => {
 app.get("/urls/:id/delete", (req, res) => {
     res.render("urls_index", { username: req.cookies["username"], urls: urlDatabase })
 })
-
+//Delete a URL from database
 app.post("/urls/:id/delete", (req, res) => {
     let id = req.params.id;
     delete urlDatabase[id];
     res.redirect("/urls");
+})
 
 app.post("/login", (req, res) => {
     console.log("Body:", req.body);
     res.cookie('username', req.body['username']);
     console.log("Cookies:", req.cookies);
     res.redirect("/urls");
-})
+});
 
 app.post("/logout", (req, res) => {
     res.clearCookie('username');
@@ -90,4 +91,4 @@ app.post("/logout", (req, res) => {
 //keep at the bottom
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`)
-});
+})
