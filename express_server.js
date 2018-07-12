@@ -7,10 +7,28 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-var urlDatabase = {
+const urlDatabase = {
     "b2xVn2": "http://www.lighthouselabs.ca",
     "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+    "userRandomID": {
+        id: "userRandomID",
+        email: "user@example.com",
+        password: "purple-monkey-dinosaur"
+    },
+    "user2RandomID": {
+        id: "user2RandomID",
+        email: "user2@example.com",
+        password: "dishwasher-funk"
+    },
+    "Derpy": {
+        id: "Derpy",
+        email: "derpy@example.com",
+        password: "yeetyeetyeet"
+    },
+}
 
 app.get("/", (req, res) => {
     res.end("Hello!");
@@ -86,6 +104,33 @@ app.post("/logout", (req, res) => {
     res.clearCookie('username');
     console.log("Cookies:", req.cookies);
     res.redirect("/urls");
+})
+
+app.get("/register", (req, res) => {
+    res.render("registration", { username: req.cookies["username"], urls: urlDatabase });
+})
+
+app.post("/register", (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    for (const id in users) {
+        user = users[id]; //set global variable user to refer to each user's id
+    }
+    //add new user IF the entered email doesn't match an existing email in the database
+    //and if email and password are filled out
+    if (email !== user.email && email && password) {
+        var randoID = generateRandomString();
+        var newID = randoID;
+        users[newID] = { id: newID, email: email, password: password };
+        console.log("Users:", users); //verify new user is added to database
+        res.cookie('user_id', users[newID].id);
+        res.redirect('/urls');
+    } else {
+        res.sendStatus(400); 
+    }
+    // bcrypt.hash(req.body.password, saltRounds, (error, hashed) => {
+    //     database.save(username, hashed);
+    // })
 })
 
 //keep at the bottom
