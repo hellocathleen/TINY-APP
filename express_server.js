@@ -28,6 +28,15 @@ const users = {
         email: "derpy@example.com",
         password: "yeetyeetyeet"
     },
+    "Cathleen": {
+        id: "Cathleen",
+        email: "cathleen5140@gmail.com",
+        password: "password123"
+    }
+}
+
+for (const id in users) {
+    userID = users[id];
 }
 
 app.get("/", (req, res) => {
@@ -43,15 +52,15 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-    res.render("urls_index", { username: req.cookies["username"], urls: urlDatabase })
+    res.render("urls_index", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase })
 });
 
 app.get('/urls/new', (req, res) => {
-    res.render("urls_new", { username: req.cookies["username"] });
+    res.render("urls_new", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase });
 });
 
 app.get("/urls/:id", (req, res) => {
-    let templateVars = { shortURL: req.params.id, fullURL: urlDatabase[req.params.id], username: req.cookies["username"] };
+    let templateVars = { user_id: req.cookies["user_id"], user: users, urls: urlDatabase, shortURL: req.params.id, fullURL: urlDatabase[req.params.id] };
     res.render("urls_show", templateVars);
 });
 //Update a URL in the database
@@ -84,7 +93,7 @@ app.get("/u/:randoURL", (req, res) => {
 })
 
 app.get("/urls/:id/delete", (req, res) => {
-    res.render("urls_index", { username: req.cookies["username"], urls: urlDatabase })
+    res.render("urls_index", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase })
 })
 //Delete a URL from database
 app.post("/urls/:id/delete", (req, res) => {
@@ -93,45 +102,80 @@ app.post("/urls/:id/delete", (req, res) => {
     res.redirect("/urls");
 })
 
+app.get("/login", (req, res) => {
+    res.render("login"), { user: users, urls: urlDatabase };
+})
+
 app.post("/login", (req, res) => {
     console.log("Body:", req.body);
-    res.cookie('username', req.body['username']);
-    console.log("Cookies:", req.cookies);
-    res.redirect("/urls");
+    const email = req.body.email;
+    const password = req.body.password;
+    for (var id in users) {
+        const user = users[id];
+        console.log(email, user.email);
+        if (user.email === email) {
+            //currentUser = user;
+            if (user.password === password) {
+                res.cookie('user_id', user.id);
+                res.redirect("/urls");
+                return;
+            }
+        }
+    }
+    return res.sendStatus(403);  
 });
 
+     //     if(email === user.email && password === user.password) {
+    //         res.cookie('user_id', user.id);
+    //         res.redirect("/urls");
+        // if (email === user.email && password !== user.password) {
+        //     res.sendStatus(403);
+        //     return;
+    // if (email == currentUser.email && password === currentUser.password) {
+    //     res.cookie('user_id', currentUser.id);
+    //     res.redirect("/urls");
+    // } else if (email === currentUser.email && password !== currentUser.password) {
+    //     res.sendStatus(403);
+    //     return;
+    // } else if (email !== currentUser.email) {
+    //     res.sendStatus(403);
+    //     return;
+    // } 
+
 app.post("/logout", (req, res) => {
-    res.clearCookie('username');
+    res.clearCookie('user_id');
     console.log("Cookies:", req.cookies);
     res.redirect("/urls");
 })
 
 app.get("/register", (req, res) => {
-    res.render("registration", { username: req.cookies["username"], urls: urlDatabase });
+    res.render("registration", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase });
 })
 
 app.post("/register", (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    for (const id in users) {
-        user = users[id]; //set global variable user to refer to each user's id
-    }
     //add new user IF the entered email doesn't match an existing email in the database
     //and if email and password are filled out
-    if (email !== user.email && email && password) {
-        var randoID = generateRandomString();
-        var newID = randoID;
-        users[newID] = { id: newID, email: email, password: password };
-        console.log("Users:", users); //verify new user is added to database
-        res.cookie('user_id', users[newID].id);
-        res.redirect('/urls');
-    } else {
-        res.sendStatus(400); 
+    for (const id in users) {
+        const userID = users[id];
+        if (email !== userID.email && email && password) {
+            let randoID = generateRandomString();
+            const newID = randoID;
+            users[newID] = { id: newID, email: email, password: password };
+            res.cookie('user_id', users[newID].id);
+            res.redirect('/urls');
+            return;
+        } else {
+            res.sendStatus(400); 
+            return;
+        }
     }
+})
     // bcrypt.hash(req.body.password, saltRounds, (error, hashed) => {
     //     database.save(username, hashed);
     // })
-})
+
 
 //keep at the bottom
 app.listen(PORT, () => {
