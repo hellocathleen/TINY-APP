@@ -4,6 +4,7 @@ var PORT = 8080; //default port 8080
 var cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
+const bcrypt = require('bcryptjs');
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -48,14 +49,14 @@ const users = {
     }
 }
 
-// function findUserEmail(userID) {
-//     for (var id in users) {
-//         const user = users[id];
-//         if (user.id === req.session.userId) {
-//             return user.email
-//         }
-//     }
-// }
+function findUserEmail(userID) {
+    for (var id in users) {
+        const user = users[id];
+        if (user.id === req.session.userId) {
+            return user.email
+        }
+    }
+}
 app.get("/", (req, res) => {
     res.end("Hello!");
 });
@@ -93,12 +94,12 @@ app.get("/urls", (req, res) => {
 
 app.get('/urls/new', (req, res) => {
     let templateVars = { 
-        user_id: req.cookies["user_id"], 
+        user_id: req.cookies["user_id"],
         user: users,
         urls: urlDatabase, 
     };
     if (req.session.userId) {
-        res.render("urls_new", { templateVars });
+        res.render("urls_new", templateVars);
     } else {
         res.redirect("/login");
     }
@@ -191,7 +192,7 @@ app.post("/login", (req, res) => {
         const user = users[id];
         if (user.email === email) {
             //currentUser = user;
-            if (user.password === password) {
+            if (bcrypt.compareSync(password, user['password'])) {
                 res.cookie('user_id', user.id);
                 req.session.userId = user.id;
                 res.redirect("/urls");
@@ -221,6 +222,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
+    const hashedPassword = bcrypt.hashSync(password, 10);
     //add new user IF the entered email doesn't match an existing email in the database
     //and if email and password are filled out
     for (const id in users) {
@@ -233,8 +235,10 @@ app.post("/register", (req, res) => {
     if (email && password) {
         let randoID = generateRandomString();
         const newID = randoID;
-        users[newID] = { id: newID, email: email, password: password };
+        users[newID] = { id: newID, email: email, password: hashedPassword };
+        console.log(users[newID].password);
         res.cookie('user_id', users[newID].id);
+        req.session.userId = users[newID].id;
         res.redirect('/urls');
         return;
     }
