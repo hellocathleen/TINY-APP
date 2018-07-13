@@ -7,10 +7,34 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-var urlDatabase = {
+const urlDatabase = {
     "b2xVn2": "http://www.lighthouselabs.ca",
     "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+    "userRandomID": {
+        id: "userRandomID",
+        email: "user@example.com",
+        password: "purple-monkey-dinosaur"
+    },
+    "user2RandomID": {
+        id: "user2RandomID",
+        email: "user2@example.com",
+        password: "dishwasher-funk"
+    },
+    "Derpy": {
+        id: "Derpy",
+        email: "derpy@example.com",
+        password: "yeetyeetyeet"
+    },
+    "Cathleen": {
+        id: "Cathleen",
+        email: "cathleen5140@gmail.com",
+        password: "password123"
+    }
+}
+
 
 app.get("/", (req, res) => {
     res.end("Hello!");
@@ -25,15 +49,15 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-    res.render("urls_index", { username: req.cookies["username"], urls: urlDatabase })
+    res.render("urls_index", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase })
 });
 
 app.get('/urls/new', (req, res) => {
-    res.render("urls_new", { username: req.cookies["username"] });
+    res.render("urls_new", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase });
 });
 
 app.get("/urls/:id", (req, res) => {
-    let templateVars = { shortURL: req.params.id, fullURL: urlDatabase[req.params.id], username: req.cookies["username"] };
+    let templateVars = { user_id: req.cookies["user_id"], user: users, urls: urlDatabase, shortURL: req.params.id, fullURL: urlDatabase[req.params.id] };
     res.render("urls_show", templateVars);
 });
 //Update a URL in the database
@@ -66,7 +90,7 @@ app.get("/u/:randoURL", (req, res) => {
 })
 
 app.get("/urls/:id/delete", (req, res) => {
-    res.render("urls_index", { username: req.cookies["username"], urls: urlDatabase })
+    res.render("urls_index", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase })
 })
 //Delete a URL from database
 app.post("/urls/:id/delete", (req, res) => {
@@ -75,18 +99,64 @@ app.post("/urls/:id/delete", (req, res) => {
     res.redirect("/urls");
 })
 
+app.get("/login", (req, res) => {
+    res.render("login"), { user: users, urls: urlDatabase };
+})
+
 app.post("/login", (req, res) => {
     console.log("Body:", req.body);
-    res.cookie('username', req.body['username']);
-    console.log("Cookies:", req.cookies);
-    res.redirect("/urls");
+    const email = req.body.email;
+    const password = req.body.password;
+    for (var id in users) {
+        const user = users[id];
+        console.log(email, user.email);
+        if (user.email === email) {
+            //currentUser = user;
+            if (user.password === password) {
+                res.cookie('user_id', user.id);
+                res.redirect("/urls");
+                return;
+            }
+        }
+    }
+    return res.sendStatus(403);  
 });
 
 app.post("/logout", (req, res) => {
-    res.clearCookie('username');
+    res.clearCookie('user_id');
     console.log("Cookies:", req.cookies);
     res.redirect("/urls");
 })
+
+app.get("/register", (req, res) => {
+    res.render("registration", { user_id: req.cookies["user_id"], user: users, urls: urlDatabase });
+})
+
+app.post("/register", (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    //add new user IF the entered email doesn't match an existing email in the database
+    //and if email and password are filled out
+    for (const id in users) {
+        const user = users[id];
+        if (email === user.email){
+            res.sendStatus(400);
+            return;
+        }
+    }
+    if (email && password) {
+        let randoID = generateRandomString();
+        const newID = randoID;
+        users[newID] = { id: newID, email: email, password: password };
+        res.cookie('user_id', users[newID].id);
+        res.redirect('/urls');
+        return;
+    }
+})
+    // bcrypt.hash(req.body.password, saltRounds, (error, hashed) => {
+    //     database.save(username, hashed);
+    // })
+
 
 //keep at the bottom
 app.listen(PORT, () => {
