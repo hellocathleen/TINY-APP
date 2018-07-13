@@ -2,8 +2,7 @@
 <html lang= "en">
 <head>
   <% if (user_id) { %>
-
-    <h2 style="color:slateblue;"><b>Welcome, <%= user_id %>!</b></h2> 
+    <h2 style="color:slateblue;"><b>Welcome, <%= user_id.email %>!</b></h2> 
     <form method="POST" action="/logout" style="margin:15px;">
       <div class="button">
           <button type="submit">Log Out</button>
