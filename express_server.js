@@ -35,9 +35,6 @@ const users = {
     }
 }
 
-for (const id in users) {
-    userID = users[id];
-}
 
 app.get("/", (req, res) => {
     res.end("Hello!");
@@ -155,7 +152,6 @@ app.post("/register", (req, res) => {
         res.redirect('/urls');
         return;
     }
-    //return res.sendStatus(400);
 })
     // bcrypt.hash(req.body.password, saltRounds, (error, hashed) => {
     //     database.save(username, hashed);
