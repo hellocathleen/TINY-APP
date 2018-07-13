@@ -125,23 +125,6 @@ app.post("/login", (req, res) => {
     return res.sendStatus(403);  
 });
 
-     //     if(email === user.email && password === user.password) {
-    //         res.cookie('user_id', user.id);
-    //         res.redirect("/urls");
-        // if (email === user.email && password !== user.password) {
-        //     res.sendStatus(403);
-        //     return;
-    // if (email == currentUser.email && password === currentUser.password) {
-    //     res.cookie('user_id', currentUser.id);
-    //     res.redirect("/urls");
-    // } else if (email === currentUser.email && password !== currentUser.password) {
-    //     res.sendStatus(403);
-    //     return;
-    // } else if (email !== currentUser.email) {
-    //     res.sendStatus(403);
-    //     return;
-    // } 
-
 app.post("/logout", (req, res) => {
     res.clearCookie('user_id');
     console.log("Cookies:", req.cookies);
@@ -158,19 +141,21 @@ app.post("/register", (req, res) => {
     //add new user IF the entered email doesn't match an existing email in the database
     //and if email and password are filled out
     for (const id in users) {
-        const userID = users[id];
-        if (email !== userID.email && email && password) {
-            let randoID = generateRandomString();
-            const newID = randoID;
-            users[newID] = { id: newID, email: email, password: password };
-            res.cookie('user_id', users[newID].id);
-            res.redirect('/urls');
-            return;
-        } else {
-            res.sendStatus(400); 
+        const user = users[id];
+        if (email === user.email){
+            res.sendStatus(400);
             return;
         }
     }
+    if (email && password) {
+        let randoID = generateRandomString();
+        const newID = randoID;
+        users[newID] = { id: newID, email: email, password: password };
+        res.cookie('user_id', users[newID].id);
+        res.redirect('/urls');
+        return;
+    }
+    //return res.sendStatus(400);
 })
     // bcrypt.hash(req.body.password, saltRounds, (error, hashed) => {
     //     database.save(username, hashed);
