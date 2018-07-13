@@ -48,14 +48,14 @@ const users = {
     }
 }
 
-function findUserEmail(userID) {
-    for (var id in users) {
-        const user = users[id];
-        if (user.id === req.session.userId) {
-            return user.email
-        }
-    }
-}
+// function findUserEmail(userID) {
+//     for (var id in users) {
+//         const user = users[id];
+//         if (user.id === req.session.userId) {
+//             return user.email
+//         }
+//     }
+// }
 app.get("/", (req, res) => {
     res.end("Hello!");
 });
@@ -68,13 +68,27 @@ app.get("/hello", (req, res) => {
     res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+function urlsForUser(id) {
+    var userUrls = {};
+    for (var shortURL in urlDatabase) {
+        if (urlDatabase[shortURL]['userID'] === id) {
+            userUrls[shortURL] = urlDatabase[shortURL].url
+        }
+    }
+    return userUrls;
+}
 app.get("/urls", (req, res) => {
+    let id = req.params.id;
     let templateVars = { 
         user_id: req.cookies["user_id"], 
         user: users,
-        urls: urlDatabase, 
+        urls: urlsForUser(req.session.userId) 
     };
-    res.render("urls_index", templateVars)
+    if (!req.session.userId) {
+        res.end("<html><body>You must log in.</body></html>\n");
+    } else {
+        res.render("urls_index", templateVars)
+    }
 });
 
 app.get('/urls/new', (req, res) => {
@@ -91,13 +105,20 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+    let id = req.params.id;
     let templateVars = { 
         user_id: req.cookies["user_id"], 
         user: users, 
         urls: urlDatabase, 
         shortURL: req.params.id, 
         fullURL: urlDatabase[req.params.id]['url'] };
-    res.render("urls_show", templateVars);
+    if (!req.session.userId) {
+        res.end("<html><body>You must log in.</body></html>\n");
+    } else if (urlDatabase[id]['userID'] === req.session.userId) {
+        res.render("urls_show", templateVars);  
+    } else {
+        res.end("<html><body>You do not own this URL.</body></html>\n")
+    }
 });
 //Update a URL in the database
 app.post("/urls/:id", (req, res) => {
@@ -127,9 +148,9 @@ app.post("/urls", (req, res) => {
     res.redirect(`/urls/${randoURL}`);
 });
 
-app.get("/u/:randoURL", (req, res) => {
-    let randoURL = req.params.randoURL;
-    let longURL = urlDatabase[randoURL];
+app.get("/u/:shortURL", (req, res) => {
+    let shortURL = req.params.shortURL;
+    let longURL = urlDatabase[shortURL].url;
     res.redirect(longURL);
 })
 
@@ -144,7 +165,9 @@ app.get("/urls/:id/delete", (req, res) => {
 //Delete a URL from database
 app.post("/urls/:id/delete", (req, res) => {
     let id = req.params.id;
-    if (urlDatabase[id]['userID'] === req.session.userId) {
+    if (!req.session.userId) {
+        res.end("<html><body>You must log in.</body></html>\n");
+    } else if (urlDatabase[id]['userID'] === req.session.userId) {
         delete urlDatabase[id];
         res.redirect("/urls");
     } else {
@@ -161,7 +184,7 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-    console.log("Body:", req.body);
+    console.log("Body:", req.body);//view login credentials
     const email = req.body.email;
     const password = req.body.password;
     for (var id in users) {
@@ -181,6 +204,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
     res.clearCookie('user_id');
+    req.session = null;
     console.log("Cookies:", req.cookies);
     res.redirect("/urls");
 })
