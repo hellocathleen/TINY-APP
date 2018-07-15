@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang= "en">
 <head>
+  <font face="Helvetica">
   <% if (user_id) { %>
     <h2 style="color:slateblue;"><b>Welcome, <%= user_id.email %>!</b></h2> 
     <form method="POST" action="/logout" style="margin:15px;">
@@ -14,5 +15,6 @@
     <a href="/login">Log in</a>
     <a href="/register">Register</a>
   <% } %>
+  </font>
 </head>
 </html>

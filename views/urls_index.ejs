@@ -3,17 +3,17 @@
   <head>
     <title>TinyApp</title>
   </head>
-  <body>
+  <body style="font-size:17px; padding:50px;"><font face="Helvetica">
     <% include partials/_header %>
     <% for (var key in urls) { %>
-       <h4><li> <%=key + ': ' + urls[key]%></li></h4> 
-       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/urls/<%= key%>/">Edit</a>
-          <form method="POST" action="/urls/<%= key%>/delete" style="margin:15px;">
+      <h4><li> <%=key + ': ' + urls[key]%></li></h4> 
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/urls/<%= key%>/">Edit</a>
+          <form method="POST" action="/urls/<%= key%>/delete?_method=DELETE" style="margin:15px;">
             <div class="button">
                 <button type="submit">Delete 🗑️</button>
             </div>
           </form>
     <% } %>
     <a href="/urls/new/">Create a New Short Link</a>
-  </body>
+  </body></font>
 </html>
