@@ -12,6 +12,7 @@
 - bcryptjs
 - body-parser
 - cookie-session
+- method-override
 
 ## Getting Started
 
