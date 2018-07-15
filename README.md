@@ -21,5 +21,7 @@
 ## Final Product
 
 !["Screenshot of registration page"](https://github.com/hellocathleen/TINY-APP/blob/master/docs/registration.png?raw=true)
-!["Screenshot of URLs index page"] (https://github.com/hellocathleen/TINY-APP/blob/master/docs/urls-index.png?raw=true)
-!["Screenshot of URL update page] (https://github.com/hellocathleen/TINY-APP/blob/master/docs/urls-update.png?raw=true)
+
+!["Screenshot of URLs index page"](https://github.com/hellocathleen/TINY-APP/blob/master/docs/urls-index.png?raw=true)
+
+!["Screenshot of URL update page](https://github.com/hellocathleen/TINY-APP/blob/master/docs/urls-update.png?raw=true)
