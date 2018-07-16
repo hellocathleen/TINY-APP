@@ -1,16 +1,17 @@
-var express = require('express');
-var app = express();
-var PORT = 8080; //default port 8080
+const express = require('express');
+const app = express();
+const PORT = 8080; //default port 8080
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
+const methodOverride = require('method-override');
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: ['secret-string', 'key2'],
 }));
-
+app.use(methodOverride('_method'));
 
 const urlDatabase = {
     "b2xVn2": {
@@ -49,8 +50,8 @@ const users = {
 
 //global function for returning urls that were created by the user
 function urlsForUser(id) {
-    var userUrls = {};
-    for (var shortURL in urlDatabase) {
+    const userUrls = {};
+    for (let shortURL in urlDatabase) {
         if (urlDatabase[shortURL]['userID'] === id) {
             userUrls[shortURL] = urlDatabase[shortURL].url
         }
@@ -74,11 +75,6 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req, res) => {
     res.json(urlDatabase);
 });
-
-app.get("/hello", (req, res) => {
-    res.end("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 
 app.get("/urls", (req, res) => {
     let id = req.params.id;
@@ -127,13 +123,11 @@ app.get("/urls/:id", (req, res) => {
 });
 
 //Update a URL in the database
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
     let id = req.params.id;
     if (urlDatabase[id]['userID'] === req.session.user_id) {
-        console.log(req.body); //debug statement to see POST parameters
         let newlongURL = req.body['newlongURL']
         urlDatabase[req.params.id].url = newlongURL;
-        console.log(urlDatabase);//view updated database
         res.redirect("/urls");
     } else {
         res.end("<html><body>You are not authorized to edit this URL.</body></html>\n");
@@ -142,11 +136,9 @@ app.post("/urls/:id", (req, res) => {
 
 //Add new URL to database
 app.post("/urls", (req, res) => {
-    console.log(req.body); //debug statement to see POST parameters
     let longURL = req.body['longURL']
     let randoURL = generateRandomString();
     urlDatabase[randoURL] = { url: longURL, userID: req.session.user_id };
-    console.log(urlDatabase);  
     res.redirect(`/urls/${randoURL}`);
 });
 //shortURL redirection to longURL
@@ -177,7 +169,7 @@ app.get("/urls/:id/delete", (req, res) => {
     }
 })
 //Delete a URL from database
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id/delete", (req, res) => {
     let id = req.params.id;
     if (!req.session.user_id) {
         res.end("<html><body>You must log in.</body></html>\n");
@@ -202,10 +194,9 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", (req, res) => {
-    console.log("Body:", req.body);//view login credentials
     const email = req.body.email;
     const password = req.body.password;
-    for (var id in users) {
+    for (let id in users) {
         const user = users[id];
         if (user.email === email) {
             //currentUser = user;
